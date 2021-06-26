@@ -1,5 +1,5 @@
 # SDI12Term
- A simple SDI12 Terminal Console for Windows
+A simple SDI12 Terminal Console for Windows. 
  
 SDI12 is a very simple serial protocol (public domain), used widely for (slow) meteorological and hydrological sensors since 1988.
 Data are transmitted in a human readable format (but may also secured with a CRC16) and a lot of sensors exist on the market. With SDI12 it is very easy to build (small) comnplex systems, like wheather stations or water quality monitoring stations.
@@ -13,6 +13,7 @@ Each sensor has an own address (normally '0' - '9', where '?' is broadcast):
 
 This simple and free tool can communicate with SDI12 sensors, only a RS232-UART (as still present on most PCs) is required,
 a connector (called SUB-D9), a cheap diode (like 1N4148) and a resistor (in the range 5-10 kOhm). And of course power for the sensors.
+The software was compiled with the free Visual Code Studio and should also work on Embarcadero C++ Studio and others.
 
 A very simple adapter:
  
