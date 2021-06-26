@@ -18,6 +18,7 @@ a connector (called SUB-D9), a cheap diode (like 1N4148) and a resistor (in the 
 A very simple adapter ;-)
 
 Link to the SDI-12 Support Group: https://www.sdi-12.org
+ 
 Wikipedia: https://en.wikipedia.org/wiki/SDI-12
 
 ***
