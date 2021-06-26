@@ -14,9 +14,10 @@ Each sensor has an own address (normally '0' - '9', where '?' is broadcast):
 This simple and free tool can communicate with SDI12 sensors, only a RS232-UART (as still present on most PCs) is required,
 a connector (called SUB-D9), a cheap diode (like 1N4148) and a resistor (in the range 5-10 kOhm). And of course power for the sensors.
 
+A very simple adapter:
+ 
 !['Adapter'](./Img/connector.jpg "Adapter")
 
-A very simple adapter ;-)
 
 Link to the SDI-12 Support Group: https://www.sdi-12.org
  
