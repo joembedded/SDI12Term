@@ -7,7 +7,8 @@ Data are transmitted in a human readable format and a lot of sensors exist on th
 This simple and free tool can communicate with SDI12 sensors, only a RS232-UART (as still present on most PCs) is required,
 a connector (called SUB-D9), a cheap Diode (like 1N4148) and a Resistor (in the range 5-15 kOhm).
 
-Adapter: img/connector.jpg
+!['Adapter'](./img/connector.jpg)
+A very simple adapter ;-)
 
 Link to the SDI-12 Support Group: https://www.sdi-12.org
 
