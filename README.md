@@ -15,6 +15,7 @@ This simple and free tool can communicate with SDI12 sensors, only a RS232-UART 
 a connector (called SUB-D9), a cheap diode (like 1N4148) and a resistor (in the range 5-10 kOhm). And of course power for the sensors.
 
 !['Adapter'](./Img/connector.jpg "Adapter")
+
 A very simple adapter ;-)
 
 Link to the SDI-12 Support Group: https://www.sdi-12.org
