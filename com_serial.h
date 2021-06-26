@@ -5,8 +5,9 @@
 *
 * (C)JoEmbedded.de - Version 25.06.2021
 *
-* Should work with als standard C compilers.
-* Tested with Visual Studio and (older) Embarcadero RAD Studio.
+* Should work with all standard C compilers. Tested with
+* - Microsoft Visual Studio Community 2019 Version 16.4.2
+* - Embarcadero(R) C++Builder 10.3 (Community Edition)
 *
 ***********************************************************************************/
 
@@ -16,7 +17,7 @@ extern "C"{
 #endif
 
 // Parameters
-#define COM_CB_XL       // Wenn definiet, "Block"-Callback verwenden, neu seit 3/18
+#define COM_CB_XL       // If defined use "Block"-Callback, new since 3/18
 #define DEFAULT_BAUDRATE 	115200
 
 #define RTS_HANDSHAKE_OFF 0 // Default
@@ -28,7 +29,7 @@ extern "C"{
 typedef struct serial_port_info {
 	int com_nr;                      // 1-xx
 	int baudrate;
-	int flags;                      // Spezialeinstellungen . Bisher Bit0: HardwareHS
+	int flags;                      // Spezial flags: Bit0: HardwareHS
 
 	// General mainanace Data			   P: Private, *: Default, generally: write access only by functions allowed!
 	HANDLE hPortId;						// P: Handle of the Port

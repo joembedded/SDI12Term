@@ -5,8 +5,9 @@
 *
 * (C)JoEmbedded.de - Version 25.06.2021
 *
-* Should work with als standard C compilers. 
-* Tested with Visual Studio and (older) Embarcadero RAD Studio.
+* Should work with all standard C compilers. Tested with
+* - Microsoft Visual Studio Community 2019 Version 16.4.2
+* - Embarcadero(R) C++Builder 10.3 (Community Edition)
 *
 ***********************************************************************************/
 

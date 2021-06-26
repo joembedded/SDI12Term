@@ -5,8 +5,9 @@
 *
 * (C)JoEmbedded.de - Version 1.00 / 25.06.2021
 *
-* Should work with als standard C compilers.
-* Tested with Visual Studio and (older) Embarcadero RAD Studio.
+* Should work with all standard C compilers. Tested with
+* - Microsoft Visual Studio Community 2019 Version 16.4.2
+* - Embarcadero(R) C++Builder 10.3 (Community Edition)
 *
 ***********************************************************************************/
 
@@ -108,12 +109,20 @@ void sdi_scanbus(unsigned char astart, unsigned char aend) {
 	printf("\n");
 
 }
-/* Console Wrapper */
+/* Console Wrapper EMBARCADERO / VS */
 int loc_kbhit(void){
+#ifdef __BORLANDC__
+	return kbhit();
+#else // VS
 	return _kbhit();
+#endif
 }
 int loc_getch(void){
+#ifdef __BORLANDC__
+	return getch();
+#else // VS
 	return _getch();
+#endif
 }
 
 /*--- sdi_term()) ------*/
@@ -183,7 +192,7 @@ void sdi_term(void){
 			}
 		}
 	}
-	while(_kbhit()) (void)_getch();
+	while(loc_kbhit()) (void)loc_getch();
 }
 
 /*---------------MAIN------------------------------*/
