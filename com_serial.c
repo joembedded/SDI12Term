@@ -6,7 +6,7 @@
 * (C)JoEmbedded.de - Version 25.06.2021
 *
 * Should work with als standard C compilers. 
-* Tested with Visual Studio and Embarcadero RAD Studio.
+* Tested with Visual Studio and (older) Embarcadero RAD Studio.
 *
 ***********************************************************************************/
 

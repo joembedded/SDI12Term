@@ -6,15 +6,14 @@
 * (C)JoEmbedded.de - Version 1.00 / 25.06.2021
 *
 * Should work with als standard C compilers.
-* Tested with Visual Studio and Embarcadero RAD Studio.
+* Tested with Visual Studio and (older) Embarcadero RAD Studio.
 *
 ***********************************************************************************/
 
 #define _CRT_SECURE_NO_WARNINGS // For VisualStudio
 
-
-#include <stdio.h>
 #include <conio.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <windows.h>
 #include <time.h>
@@ -54,7 +53,7 @@ void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 	if (cmd_prompt_cnt > 0 ) printf("("); // Detect incomming chars while entering command
 	for (i = 0; i < anz; i++) {
 		c = *pc++;
-		// Show what is comming in. 
+		// Show what is comming in.
 		if(c >= ' ' && c <= 126) printf("%c", c);
 		else if(!c) printf("<BREAK>");
 		else if (c == 13) printf("<CR>");
@@ -66,7 +65,7 @@ void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 	reply_char = 1;
 }
 // Helper: Send 1 single char to COM
-void sdi_putc(char c){
+void sdi_putc(unsigned char c){
 	SerialWriteCommBlock(&mspi, &c, 1);
 }
 // Helper: Send Break-Signal on COM (for at least 12 msec, followed by a pasue of at least 8.33 msec)
@@ -79,7 +78,7 @@ void sdi_sendbreak(void) {
 	Sleep(AFTER_BREAK_MS);
 }
 
-// Send 0-terminated SDI-Cmd with leading BREAK on COM 
+// Send 0-terminated SDI-Cmd with leading BREAK on COM
 void sdi_sendcmd(unsigned char* pc) {
 	reply_cnt = -1;	// Expact add. BREAK
 	sdi_sendbreak();
@@ -96,7 +95,7 @@ void sdi_sendcmd(unsigned char* pc) {
 void sdi_scanbus(unsigned char astart, unsigned char aend) {
 	printf("\n--- Scan Start ---\n");
 	for (unsigned char ai = astart; ai < aend; ai++) {
-		sprintf(cmd_buf, "%cI!", ai);
+		sprintf((char*) cmd_buf, "%cI!", ai);
 		cmd_idx = 3;
 		printf("Scan %c => ",ai);
 		cmd_prompt_cnt = 0;	// Editing finished
@@ -108,6 +107,13 @@ void sdi_scanbus(unsigned char astart, unsigned char aend) {
 	}
 	printf("\n");
 
+}
+/* Console Wrapper */
+int loc_kbhit(void){
+	return _kbhit();
+}
+int loc_getch(void){
+	return _getch();
 }
 
 /*--- sdi_term()) ------*/
@@ -123,10 +129,10 @@ void sdi_term(void){
 	printf("Ready...\n");
 	for(;;){
 
-		if (_kbhit()) {
-			c = _getch();
+		if (loc_kbhit()) {
+			c = loc_getch();
 			if (c == 27) {
-				printf("<ESC>"); 
+				printf("<ESC>");
 				break;	// ESC -> Exit
 			} if (c == '\t') {
 				if (cmd_prompt_cnt > 0) {
@@ -181,7 +187,6 @@ void sdi_term(void){
 }
 
 /*---------------MAIN------------------------------*/
-
 int main(int argc, char* argv[]){
 	int i,err=0;
 	int res;
