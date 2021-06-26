@@ -15,7 +15,7 @@ This simple and free tool can communicate with SDI12 sensors, only a RS232-UART 
 a connector (called SUB-D9), a cheap diode (like 1N4148) and a resistor (in the range 5-10 kOhm). And of course power for the sensors.
 The software was compiled with the free Visual Code Studio and should also work on Embarcadero C++ Studio and others.
 
-Installation: Simply copy the ./Release/SDI12Term.exe to your PC (and optionally add it in PATH).
+Installation: Simply copy the "./Release/SDI12Term.exe" to your PC (and optionally add it in PATH).
  
 A very simple adapter:
  
