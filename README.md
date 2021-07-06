@@ -30,11 +30,12 @@ Each sensor has an own address (normally '0' - '9', where '?' is broadcast):
 
 This software can communicate with SDI12 sensors, only a RS232-UART (as still present on most PCs) is required,
 a connector (called SUB-D9), a cheap diode (like 1N4148) and a resistor (in the range 5-10 kOhm). And of course power for the sensors.
-The software was compiled with the free Visual Code Studio and should also work on Embarcadero C++ Studio and others.
+The software was compiled and tested with the free Microsoft Visual Code Studio (VS) and the free Embarcadero C++ Studio Communinty Edition.
 
 ## Installation ##
 - Simply copy the "./Release/SDI12Term.exe" (compiled with VS) to your PC (and optionally add it in PATH).
 - SDI12Term.exe will try to use COM1: by default or scan for available COM ports and display a list.
+- Alternatively you can compile SDI12Term.exe by your own.
  
 ## A very simple adapter: ##
 !['Adapter'](./Img/connector.jpg "Adapter")
