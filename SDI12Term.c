@@ -3,12 +3,14 @@
 *
 * SDI12Term - Simple SDI12 Console for Windows (Win95-Win10)
 *
-* (C)JoEmbedded.de - Version 1.00 / 25.06.2021
+* (C)JoEmbedded.de - Version (see below)
 *
 * Should work with all standard C compilers. Tested with
 * - Microsoft Visual Studio Community 2019 Version 16.4.2
 * - Embarcadero(R) C++Builder 10.3 (Community Edition)
 *
+* Verions:
+* 1.01 - Detect CRC16 in Replies
 ***********************************************************************************/
 
 #define _CRT_SECURE_NO_WARNINGS // For VisualStudio
@@ -29,7 +31,7 @@
 
 //---------------------------------------------------------------------------
 // Globals
-#define VERSION "1.00 / 25.06.2021"
+#define VERSION "1.01 / 10.07.2021"
 int comnr=1;
 /* Serial Port */
 SERIAL_PORT_INFO mspi;
@@ -45,10 +47,33 @@ volatile int cmd_prompt_cnt;
 
 volatile int reply_cnt = 0;
 volatile int reply_char = 0;
+
+#define REPLY_LEN	80
+unsigned char reply_buf[REPLY_LEN + 1]; // for 0
+volatile int reply_idx = -1;	// If >=0: Reply found
+
 //---------------------------------------------------------------------------
+// Calculate SDI12 CRC16 (using Standard Polynom A001)
+unsigned int calc_sdi12_crc16(unsigned char* pc, int len) {
+	unsigned int crc = 0;
+	while (len--) {
+		crc ^= *pc++;
+		for (int i = 0; i < 8; i++) {
+			if (crc & 1) {
+				crc >>= 1;
+				crc ^= 0xA001;
+			}else {
+				crc >>= 1;
+			}
+		}
+	}
+	return crc;
+}
+
 // Extern: Read incomming characters from COM
 void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 	unsigned int i;
+	unsigned int rcrc,scrc;
 	unsigned char c;
 
 	if (cmd_prompt_cnt > 0 ) printf("("); // Detect incomming chars while entering command
@@ -60,6 +85,29 @@ void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 		else if (c == 13) printf("<CR>");
 		else if (c == 10) printf("<LF>");
 		else printf("<%d>\a", c); // Something Strange?
+
+		// Opt. record Replies for CRC
+		if (reply_idx >= 0) {
+			if (reply_idx < REPLY_LEN) reply_buf[reply_idx++] = c;
+			if (c == 10 && reply_idx > 7 && reply_buf[reply_idx - 2] == 13) { // a+xxxCCC<CR><LF>
+				reply_idx -= 2;
+				reply_buf[reply_idx--] = 0; // Delete <CR><LF> and check for possible CRC
+				if (reply_buf[reply_idx] >= 64 && reply_buf[reply_idx] <= 127 &&
+					reply_buf[reply_idx - 1] >= 64 && reply_buf[reply_idx - 1] <= 127 &&
+					reply_buf[reply_idx - 2] >= 64 && reply_buf[reply_idx - 2] <= 127 &&
+					reply_buf[1] == '+') {
+
+					scrc = calc_sdi12_crc16(reply_buf, reply_idx - 2);
+					rcrc = ((reply_buf[reply_idx-2] - 64) << 12) + ((reply_buf[reply_idx-1] - 64) << 6) + ((reply_buf[reply_idx] - 64));
+
+					if (scrc == rcrc) printf(" => [CRC OK] ");
+					else printf(" => [CRC ERROR]\a ");
+
+				}
+			}
+		}
+		if (c == '!') reply_idx = 0;
+
 	}
 	if (cmd_prompt_cnt > 0) printf(")");
 	reply_cnt += anz;
