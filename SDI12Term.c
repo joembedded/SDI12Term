@@ -11,6 +11,7 @@
 *
 * Verions:
 * 1.01 - Detect CRC16 in Replies
+* 1.02 - Bug in Scan
 *
 * todo: 
 * - Add "Retries" for sensors with slow wakup ( item with low priority, until 
@@ -35,7 +36,7 @@
 
 //---------------------------------------------------------------------------
 // Globals
-#define VERSION "1.01 / 10.07.2021"
+#define VERSION "1.02 / 15.07.2021"
 int comnr=1;
 /* Serial Port */
 SERIAL_PORT_INFO mspi;
@@ -148,7 +149,7 @@ void sdi_sendcmd(unsigned char* pc) {
 // Scan the Bus
 void sdi_scanbus(unsigned char astart, unsigned char aend) {
 	printf("\n--- Scan Start ---\n");
-	for (unsigned char ai = astart; ai < aend; ai++) {
+	for (unsigned char ai = astart; ai <= aend; ai++) {
 		sprintf((char*) cmd_buf, "%cI!", ai);
 		cmd_idx = 3;
 		printf("Scan %c => ",ai);
