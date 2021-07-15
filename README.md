@@ -34,6 +34,8 @@ The software was compiled and tested with the free Microsoft Visual Code Studio 
 
 *CRC Check: If SDI12Term detects a CRC in a command it will check it. Commands with CRC are more reliable, but simply less good readable to humans...*
 
+*todo: Add "Retries" for sensors with slow wakup ( item with low priority, until now no sensor with slow wakeup found)*
+
 ## Installation ##
 - Simply copy the "./Release/SDI12Term.exe" (compiled with VS) to your PC (and optionally add it in PATH).
 - SDI12Term.exe will try to use COM1: by default or scan for available COM ports and display a list.

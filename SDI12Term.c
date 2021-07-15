@@ -11,6 +11,10 @@
 *
 * Verions:
 * 1.01 - Detect CRC16 in Replies
+*
+* todo: 
+* - Add "Retries" for sensors with slow wakup ( item with low priority, until 
+*                 now no sensor with slow wakeup found)
 ***********************************************************************************/
 
 #define _CRT_SECURE_NO_WARNINGS // For VisualStudio
@@ -86,10 +90,11 @@ void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 		else if (c == 10) printf("<LF>");
 		else printf("<%d>\a", c); // Something Strange?
 
-		// Opt. record Replies for CRC
+		// Optionaly record Replies for CRC
 		if (reply_idx >= 0) {
 			if (reply_idx < REPLY_LEN) reply_buf[reply_idx++] = c;
-			if (c == 10 && reply_idx > 7 && reply_buf[reply_idx - 2] == 13) { // a+xxxCCC<CR><LF>
+			// Check if Reply has CRC:   a+xx...xxCCC<CR><LF>
+			if (c == 10 && reply_idx > 7 && reply_buf[reply_idx - 2] == 13) {
 				reply_idx -= 2;
 				reply_buf[reply_idx--] = 0; // Delete <CR><LF> and check for possible CRC
 				if (reply_buf[reply_idx] >= 64 && reply_buf[reply_idx] <= 127 &&
@@ -117,7 +122,7 @@ void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 void sdi_putc(unsigned char c){
 	SerialWriteCommBlock(&mspi, &c, 1);
 }
-// Helper: Send Break-Signal on COM (for at least 12 msec, followed by a pasue of at least 8.33 msec)
+// Helper: Send Break-Signal on COM (for at least 12 msec, followed by a pause of at least 8.33 msec)
 #define BREAK_MS 20
 #define AFTER_BREAK_MS 10
 void sdi_sendbreak(void) {
