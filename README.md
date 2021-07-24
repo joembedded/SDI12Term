@@ -36,6 +36,13 @@ The software was compiled and tested with the free Microsoft Visual Code Studio 
 
 *todo: Add "Retries" for sensors with slow wakup ( item with low priority, until now no sensor with slow wakeup found)*
 
+# Sponsors #
+This project was sponsered and supported by:
+
+!['TERRA_TRANSFER'](./Sponsors/TerraTransfer.jpg "TERRA_TRANSFER")
+
+Link: [TerraTransfer GmbH, Bochum, Germany](https://www.terratransfer.org)
+
 ## Installation ##
 - Simply copy the "./Release/SDI12Term.exe" (compiled with VS) to your PC (and optionally add it in PATH).
 - SDI12Term.exe will try to use COM1: by default or scan for available COM ports and display a list.
