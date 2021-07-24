@@ -36,13 +36,6 @@ The software was compiled and tested with the free Microsoft Visual Code Studio 
 
 *todo: Add "Retries" for sensors with slow wakup ( item with low priority, until now no sensor with slow wakeup found)*
 
-# Sponsors #
-This project was sponsered and supported by:
-
-!['TERRA_TRANSFER'](./Sponsors/TerraTransfer.jpg "TERRA_TRANSFER")
-
-Link: [TerraTransfer GmbH, Bochum, Germany](https://www.terratransfer.org)
-
 ## Installation ##
 - Simply copy the "./Release/SDI12Term.exe" (compiled with VS) to your PC (and optionally add it in PATH).
 - SDI12Term.exe will try to use COM1: by default or scan for available COM ports and display a list.
@@ -51,9 +44,16 @@ Link: [TerraTransfer GmbH, Bochum, Germany](https://www.terratransfer.org)
 ## A very simple adapter: ##
 !['Adapter'](./Img/connector.jpg "Adapter")
 
+# Sponsors #
+This project was sponsered and supported by:
+
+!['TERRA_TRANSFER'](./Sponsors/TerraTransfer.jpg "TERRA_TRANSFER")
+
+Link: [TerraTransfer GmbH, Bochum, Germany](https://www.terratransfer.org)
+
 ### A small and incomplete list of SDI12 sensor suppliers (tested with this software): ###
-- STS AG (pressure sensors): https://www.stssensors.com/products/gp-sts-level/pp-sts-level-ptm/ptm_n_sdi12-programmable-pressure-transmitter-sdi-12
 - TerraTransfer GmbH (hydrological sensors, environment sensors, cloud based data loggers): https://www.terratransfer.org/
+- STS AG (pressure sensors): https://www.stssensors.com/products/gp-sts-level/pp-sts-level-ptm/ptm_n_sdi12-programmable-pressure-transmitter-sdi-12
 - GeoPrecision GmbH (patended soil moisture sensor (matric potential)): https://www.plantsensor.de/
 - DeltaT (volumetric soil moisture): https://delta-t.co.uk/an-introduction-to-sdi-12/
 - ...
