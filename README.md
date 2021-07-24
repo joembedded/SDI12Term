@@ -51,7 +51,7 @@ This project was sponsered and supported by:
 
 Link: [TerraTransfer GmbH, Bochum, Germany](https://www.terratransfer.org)
 
-### A small and incomplete list of SDI12 sensor suppliers (tested with this software): ###
+## A small and incomplete list of SDI12 sensor suppliers (tested with this software): ##
 - TerraTransfer GmbH (hydrological sensors, environment sensors, cloud based data loggers): https://www.terratransfer.org/
 - STS AG (pressure sensors): https://www.stssensors.com/products/gp-sts-level/pp-sts-level-ptm/ptm_n_sdi12-programmable-pressure-transmitter-sdi-12
 - GeoPrecision GmbH (patended soil moisture sensor (matric potential)): https://www.plantsensor.de/
