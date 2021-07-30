@@ -46,6 +46,7 @@ The software was compiled and tested with the free Microsoft Visual Code Studio 
 
 ## Companion Project(s): ##
 [Open-SDI12-Blue - A very simple SDI12-Sensor-Platform with Bluetooth](https://github.com/joembedded/Open-SDI12-Blue):
+
 !['Open-SDI12-Blue'](./Img/module_k_0v1.jpg)
 
 # Sponsors #
@@ -57,9 +58,10 @@ Link: [TerraTransfer GmbH, Bochum, Germany](https://www.terratransfer.org)
 
 ## A small and incomplete list of SDI12 sensor suppliers (tested with this software): ##
 - TerraTransfer GmbH (hydrological sensors, environment sensors, cloud based data loggers): https://www.terratransfer.org/
-- STS AG (pressure sensors): https://www.stssensors.com/products/gp-sts-level/pp-sts-level-ptm/ptm_n_sdi12-programmable-pressure-transmitter-sdi-12
 - GeoPrecision GmbH (patended soil moisture sensor (matric potential)): https://www.plantsensor.de/
+- STS AG (pressure sensors): https://www.stssensors.com/products/gp-sts-level/pp-sts-level-ptm/ptm_n_sdi12-programmable-pressure-transmitter-sdi-12
 - DeltaT (volumetric soil moisture): https://delta-t.co.uk/an-introduction-to-sdi-12/
+- Open-SDI12-Blue (see above): https://github.com/joembedded/Open-SDI12-Blue
 - ...
 
 ## Links ##
