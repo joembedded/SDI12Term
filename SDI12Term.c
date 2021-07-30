@@ -12,6 +12,7 @@
 * Verions:
 * 1.01 - Detect CRC16 in Replies
 * 1.02 - Bug in Scan
+* 1.03 - CRC fix
 *
 * todo: 
 * - Add "Retries" for sensors with slow wakup ( item with low priority, until 
@@ -36,7 +37,7 @@
 
 //---------------------------------------------------------------------------
 // Globals
-#define VERSION "1.02 / 15.07.2021"
+#define VERSION "1.03 / 30.07.2021"
 int comnr=1;
 /* Serial Port */
 SERIAL_PORT_INFO mspi;
@@ -94,14 +95,15 @@ void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 		// Optionaly record Replies for CRC
 		if (reply_idx >= 0) {
 			if (reply_idx < REPLY_LEN) reply_buf[reply_idx++] = c;
-			// Check if Reply has CRC:   a+xx...xxCCC<CR><LF>
-			if (c == 10 && reply_idx > 7 && reply_buf[reply_idx - 2] == 13) {
+			// Check if Reply has CRC:   a+xx...xxCCC<CR><LF> (Data) or aCCC<CR><LF> (No Data)
+		
+			if (c == 10 && reply_idx >= 6 && reply_buf[reply_idx - 2] == 13) {
 				reply_idx -= 2;
 				reply_buf[reply_idx--] = 0; // Delete <CR><LF> and check for possible CRC
 				if (reply_buf[reply_idx] >= 64 && reply_buf[reply_idx] <= 127 &&
 					reply_buf[reply_idx - 1] >= 64 && reply_buf[reply_idx - 1] <= 127 &&
 					reply_buf[reply_idx - 2] >= 64 && reply_buf[reply_idx - 2] <= 127 &&
-					reply_buf[1] == '+') {
+					(reply_buf[1] == '+' || reply_idx == 3) ) {
 
 					scrc = calc_sdi12_crc16(reply_buf, reply_idx - 2);
 					rcrc = ((reply_buf[reply_idx-2] - 64) << 12) + ((reply_buf[reply_idx-1] - 64) << 6) + ((reply_buf[reply_idx] - 64));
