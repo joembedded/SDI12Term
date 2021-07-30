@@ -45,9 +45,9 @@ The software was compiled and tested with the free Microsoft Visual Code Studio 
 !['Adapter'](./Img/connector.jpg "Adapter")
 
 ## Companion Project(s): ##
-[Open-SDI12-Blue - A very simple SDI12-Sensor-Platform with Bluetooth](https://github.com/joembedded/Open-SDI12-Blue):
-
 !['Open-SDI12-Blue'](./Img/module_k_0v1.jpg)
+
+Link: [Open-SDI12-Blue - A very simple SDI12-Sensor-Platform with Bluetooth](https://github.com/joembedded/Open-SDI12-Blue)
 
 # Sponsors #
 This project was sponsered and supported by:
