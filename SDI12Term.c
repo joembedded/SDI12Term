@@ -13,6 +13,7 @@
 * 1.01 - Detect CRC16 in Replies
 * 1.02 - Bug in Scan
 * 1.03 - CRC fix
+* 1.04 - Bug with negative Values
 *
 * todo: 
 * - Add "Retries" for sensors with slow wakup ( item with low priority, until 
@@ -37,7 +38,7 @@
 
 //---------------------------------------------------------------------------
 // Globals
-#define VERSION "1.03 / 30.07.2021"
+#define VERSION "1.04 / 09.08.2021"
 int comnr=1;
 /* Serial Port */
 SERIAL_PORT_INFO mspi;
@@ -103,7 +104,7 @@ void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 				if (reply_buf[reply_idx] >= 64 && reply_buf[reply_idx] <= 127 &&
 					reply_buf[reply_idx - 1] >= 64 && reply_buf[reply_idx - 1] <= 127 &&
 					reply_buf[reply_idx - 2] >= 64 && reply_buf[reply_idx - 2] <= 127 &&
-					(reply_buf[1] == '+' || reply_idx == 3) ) {
+					(reply_buf[1] == '+' || reply_buf[1] == '-' || reply_idx == 3) ) {
 
 					scrc = calc_sdi12_crc16(reply_buf, reply_idx - 2);
 					rcrc = ((reply_buf[reply_idx-2] - 64) << 12) + ((reply_buf[reply_idx-1] - 64) << 6) + ((reply_buf[reply_idx] - 64));
