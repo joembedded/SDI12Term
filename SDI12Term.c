@@ -14,6 +14,7 @@
 * 1.02 - Bug in Scan
 * 1.03 - CRC fix
 * 1.04 - Bug with negative Values
+* 1.05 - Cosmetics
 *
 * todo: 
 * - Add "Retries" for sensors with slow wakup ( item with low priority, until 
@@ -38,7 +39,7 @@
 
 //---------------------------------------------------------------------------
 // Globals
-#define VERSION "1.04 / 09.08.2021"
+#define VERSION "1.05 / 09.09.2021"
 int comnr=1;
 /* Serial Port */
 SERIAL_PORT_INFO mspi;
@@ -282,7 +283,7 @@ int main(int argc, char* argv[]){
 	res=SerialOpen(&mspi);
 
 	if(res) {
-		printf("<ERROR: Open 'COM%d:'>\n",comnr);
+		printf("<ERROR: Open 'COM%d:'>\n--- Scan COMs: ---",comnr);
 		for(i=1;i<256;i++){
 			if(!SerialTest(i)) {
 				if(i==comnr) printf("COM%d: *** selected ***\n",i);
@@ -295,7 +296,7 @@ int main(int argc, char* argv[]){
 	}
 	if(err) {
 		printf("\n<ERRORS!>\nArguments:\n");
-		printf("-cNR (Baudrate fixed: 1200Bd-7E1)\n");
+		printf("-cNR (Baudrate fixed: 1200Bd-7E1, Default: '-c1')\n");
 		printf("<NL>");
 		(void)getchar();
 	}else{
