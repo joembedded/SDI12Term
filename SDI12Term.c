@@ -26,6 +26,7 @@
 #include <conio.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <windows.h>
 #include <time.h>
 #pragma hdrstop
@@ -39,7 +40,7 @@
 
 //---------------------------------------------------------------------------
 // Globals
-#define VERSION "1.05 / 09.09.2021"
+#define VERSION "1.06 / 08.10.2021"
 int comnr=1;
 /* Serial Port */
 SERIAL_PORT_INFO mspi;
@@ -79,6 +80,7 @@ unsigned int calc_sdi12_crc16(unsigned char* pc, int len) {
 }
 
 // Extern: Read incomming characters from COM
+volatile static bool lf_on_break = true;
 void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 	unsigned int i;
 	unsigned int rcrc,scrc;
@@ -89,7 +91,11 @@ void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 		c = *pc++;
 		// Show what is comming in.
 		if(c >= ' ' && c <= 126) printf("%c", c);
-		else if(!c) printf("<BREAK>");
+		else if (!c) {
+			if (lf_on_break) printf("\n<BREAK>");
+			else printf("<BREAK>");
+			lf_on_break = true;
+		}
 		else if (c == 13) printf("<CR>");
 		else if (c == 10) printf("<LF>");
 		else printf("<%d>\a", c); // Something Strange?
@@ -140,6 +146,7 @@ void sdi_sendbreak(void) {
 // Send 0-terminated SDI-Cmd with leading BREAK on COM
 void sdi_sendcmd(unsigned char* pc) {
 	reply_cnt = -1;	// Expact add. BREAK
+	lf_on_break = false;	
 	sdi_sendbreak();
 	while (*pc) sdi_putc(*pc++);
 	for (;;) {	// Wait as long as input is receiving
@@ -235,6 +242,14 @@ void sdi_term(void){
 					if (reply_cnt == cmd_idx) printf(" => <NO_REPLY>\a"); // Count each readback char
 					else if (reply_cnt < cmd_idx) printf(" => <SDI_ERROR>\a"); // Nothing read???
 					cmd_idx = -1;
+				}
+			}else if (c == '\r' || c == '\n') {	// NL/CR
+				if (cmd_prompt_cnt > 0) {
+					printf(" => <INPUT CANCELED>\a\n");	// Ignore this command
+					cmd_idx = -1;
+					cmd_prompt_cnt = 0;	// Editing finished
+				}else {
+					printf("\n"); // NL for cosmetics
 				}
 			}else { // ignore Non-CMD Characters NL, CR, ...
 				printf("\a");
