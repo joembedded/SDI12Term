@@ -32,8 +32,20 @@ This software can communicate with SDI12 sensors, only a RS232-UART (as still pr
 a connector (called SUB-D9), a cheap diode (like 1N4148) and a resistor (in the range 5-10 kOhm). And of course power for the sensors.
 The software was compiled and tested with the free Microsoft Visual Code Studio (VS) and the free Embarcadero C++ Studio Communinty Edition.
 
-A very simple logging feature was included in V1.07, which simply adds all reply lines to file.
-
+A very simple logging feature was included in V1.07, which simply adds all reply lines to file, e.g:
+```
+# Date:13 11 2024 16:40, Cmd:'?M1! *1 ?D0!' Period(sec):60
+# Comment: Test-Sensor Type0460 Temperature and SupplyVoltage
+0 00012 0+16.906+6.37
+1 00012 0+16.914+6.33
+2 00012 0+16.922+6.34
+3 00012 0+16.937+6.34
+4 00012 0+16.906+6.34
+5 00012 0+16.859+6.32
+6 00012 0+16.812+6.36
+7 00012 0+16.766+6.34
+8 00012 0+16.750+6.36
+```
 
 *CRC Check: If SDI12Term detects a CRC in a command it will check it. Commands with CRC are more reliable, but simply less good readable to humans...*
 

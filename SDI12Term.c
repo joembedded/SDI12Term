@@ -218,7 +218,29 @@ static void run_logger(int per) {
 	time_t t,t0= time(NULL)-(time_t) per;
 	int deltat;
 	int cnt = 0;
+	FILE* logfile;
 	printf("\n--- Logger Running. Exit: <ESC> ---\n");
+
+	printf("Optionally enter a comment/header or leave empty:");
+	loc_gets(tmp);
+
+
+	logfile = fopen(LOGFILENAME, "a");
+	if (!logfile) {
+		printf("ERROR: Open '%s'\n", LOGFILENAME);
+		return;
+	}
+
+	struct tm* tls = localtime(&t0);
+	strftime(logline, sizeof(logline) - 1, "%d %m %Y %H:%M", tls);
+
+	fprintf(logfile,"# Date:%s, Cmd:'%s' Period(sec):%d\n", logline, lcmd, per);
+	if (strlen(tmp)) {
+		fprintf(logfile, "# Comment: %s\n", tmp);
+	}
+	fclose(logfile);
+
+
 	for (;;) {
 		t = time(NULL);
 		deltat = (int)(t - t0);
@@ -274,7 +296,7 @@ static void run_logger(int per) {
 			}else break;	// Cmd komplett
 		}
 		printf("\n   ===> Logline: '%s'\n", logline);
-		FILE *logfile = fopen(LOGFILENAME, "a");
+		logfile = fopen(LOGFILENAME, "a");
 		if (!logfile) {
 			printf("ERROR: Open '%s'\n",LOGFILENAME);
 			break;
@@ -319,7 +341,7 @@ static void sdi_term(void){
 				}
 				printf("\n--- <TAB>-Menue ---\n");
 				printf("<s>: Scan SDI12 Bus (Addresses '0' to '9')\n");
-				printf("<l>: Start Logger (File: 'log.dat')\n");
+				printf("<l>: Start Logger (File: '%s')\n", LOGFILENAME);
 				printf("Other: Exit\n\n");
 				for (;;) {
 					if (!loc_kbhit()) {
@@ -336,21 +358,22 @@ static void sdi_term(void){
 						FILE* tf = fopen(LOGFILENAME, "r");
 						if(tf){
 							fclose(tf);
-							printf("Delete existing logfile '%s'? (y):", LOGFILENAME);
+							printf("Delete existing logfile '%s'? y/(n):", LOGFILENAME);
 							loc_gets(tmp);
 							if (tolower(tmp[0] == 'y')) {
 								remove(LOGFILENAME);
 							}
 						}
 						if (strlen(lcmd)) {
-							printf("Enter new Cmd? (Existing: '%s')? (y):", lcmd);
+							printf("Enter new Logger-Cmd-List? (Existing: '%s')? y/(n):", lcmd);
 							loc_gets(tmp);
 							if (tolower(tmp[0] == 'y')) {
 								*lcmd = 0;
 							}
 						}
 						if (!strlen(lcmd)) {
-							printf("Logger-Command (Default: '?M! *1 ?D0!', (SDI-Commands or '*N': Pause N seconds, seperated by ' ')): ");
+							printf("Logger-Cmd-List (String, Default: '?M! *1 ?D0!', (SDI-Commands or '*N': Pause N sec, seperated by ' '))\n");
+							printf("Cmd: ");
 							loc_gets(lcmd);
 							if (strlen(lcmd) <= 0) strcpy(lcmd, "?M! *1 ?D0!");
 						}
