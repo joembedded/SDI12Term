@@ -52,7 +52,7 @@ A very simple logging feature was included in V1.07, which simply adds all reply
 *todo: Add "Retries" for sensors with slow wakup ( item with low priority, until now no sensor with slow wakeup found)*
 
 ## Installation ##
-- Simply copy the "...xx../SDI12Term.exe" (compiled with VS, ...xxx...:depending on the version) to your PC (and optionally add it in PATH).
+- Simply copy the "...xxx../SDI12Term.exe" (compiled with VS, ...xxx...:depending on the version) to your PC (and optionally add it in PATH).
 - SDI12Term.exe will try to use COM1: by default or scan for available COM ports and display a list.
 - Alternatively you can compile SDI12Term.exe by your own.
  
