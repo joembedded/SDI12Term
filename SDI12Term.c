@@ -15,6 +15,7 @@
 * 1.03 - CRC fix
 * 1.04 - Bug with negative Values
 * 1.05 - Cosmetics
+* 1.07 - Added simple logging feature
 *
 * todo: 
 * - Add "Retries" for sensors with slow wakup ( item with low priority, until 
@@ -25,10 +26,13 @@
 
 #include <conio.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <windows.h>
 #include <time.h>
+#include <ctype.h>
+
 #pragma hdrstop
 
 #undef errno
@@ -38,9 +42,10 @@
 
 #include "com_serial.h"
 
+
 //---------------------------------------------------------------------------
 // Globals
-#define VERSION "1.06 / 08.10.2021"
+#define VERSION "1.07 / 11.11.2024"
 int comnr=1;
 /* Serial Port */
 SERIAL_PORT_INFO mspi;
@@ -61,9 +66,40 @@ volatile int reply_char = 0;
 unsigned char reply_buf[REPLY_LEN + 1]; // for 0
 volatile int reply_idx = -1;	// If >=0: Reply found
 
+#define LOGFILENAME "logfile.dat"
+char lcmd[256];	// Loggercommand
+char tmp[256];	// Temporary buffer
+
+/* Console Wrapper EMBARCADERO / VS */
+static int loc_kbhit(void) {
+#ifdef __BORLANDC__
+	return kbhit();
+#else // VS
+	return _kbhit();
+#endif
+}
+static int loc_getch(void) {
+#ifdef __BORLANDC__
+	return getch();
+#else // VS
+	return _getch();
+#endif
+}
+
+// read max. 256 Bytes STring from console
+static void loc_gets(char* cmd) {
+
+#ifdef __BORLANDC__
+	gets(cmd);
+#else // VS
+	gets_s(cmd, 256);	// Max 256 Chars
+#endif
+}
+
+
 //---------------------------------------------------------------------------
 // Calculate SDI12 CRC16 (using Standard Polynom A001)
-unsigned int calc_sdi12_crc16(unsigned char* pc, int len) {
+static unsigned int calc_sdi12_crc16(unsigned char* pc, int len) {
 	unsigned int crc = 0;
 	while (len--) {
 		crc ^= *pc++;
@@ -81,25 +117,27 @@ unsigned int calc_sdi12_crc16(unsigned char* pc, int len) {
 
 // Extern: Read incomming characters from COM
 volatile static bool lf_on_break = true;
+volatile static bool x_verb = true;
 void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 	unsigned int i;
 	unsigned int rcrc,scrc;
 	unsigned char c;
 
-	if (cmd_prompt_cnt > 0 ) printf("("); // Detect incomming chars while entering command
+	if (cmd_prompt_cnt > 0 ) if(x_verb) printf("("); // Detect incomming chars while entering command
 	for (i = 0; i < anz; i++) {
 		c = *pc++;
-		// Show what is comming in.
-		if(c >= ' ' && c <= 126) printf("%c", c);
-		else if (!c) {
-			if (lf_on_break) printf("\n<BREAK>");
-			else printf("<BREAK>");
-			lf_on_break = true;
+		if (x_verb) {
+			// Show what is comming in.
+			if (c >= ' ' && c <= 126) printf("%c", c);
+			else if (!c) {
+				if (lf_on_break) printf("\n<BREAK>");
+				else printf("<BREAK>");
+				lf_on_break = true;
+			}
+			else if (c == 13) printf("<CR>");
+			else if (c == 10) printf("<LF>");
+			else printf("<%d>\a", c); // Something Strange?
 		}
-		else if (c == 13) printf("<CR>");
-		else if (c == 10) printf("<LF>");
-		else printf("<%d>\a", c); // Something Strange?
-
 		// Optionaly record Replies for CRC
 		if (reply_idx >= 0) {
 			if (reply_idx < REPLY_LEN) reply_buf[reply_idx++] = c;
@@ -125,18 +163,18 @@ void ext_xl_SerialReaderCallback(unsigned char* pc, unsigned int anz) {
 		if (c == '!') reply_idx = 0;
 
 	}
-	if (cmd_prompt_cnt > 0) printf(")");
+	if (cmd_prompt_cnt > 0) if (x_verb) printf(")");
 	reply_cnt += anz;
 	reply_char = 1;
 }
 // Helper: Send 1 single char to COM
-void sdi_putc(unsigned char c){
+static void sdi_putc(unsigned char c){
 	SerialWriteCommBlock(&mspi, &c, 1);
 }
 // Helper: Send Break-Signal on COM (for at least 12 msec, followed by a pause of at least 8.33 msec)
 #define BREAK_MS 20
 #define AFTER_BREAK_MS 10
-void sdi_sendbreak(void) {
+static void sdi_sendbreak(void) {
 	SerialSetCommBreak(&mspi);
 	Sleep(BREAK_MS);
 	SerialClearCommBreak(&mspi);
@@ -144,7 +182,7 @@ void sdi_sendbreak(void) {
 }
 
 // Send 0-terminated SDI-Cmd with leading BREAK on COM
-void sdi_sendcmd(unsigned char* pc) {
+static void sdi_sendcmd(unsigned char* pc) {
 	reply_cnt = -1;	// Expact add. BREAK
 	lf_on_break = false;	
 	sdi_sendbreak();
@@ -158,7 +196,7 @@ void sdi_sendcmd(unsigned char* pc) {
 }
 
 // Scan the Bus
-void sdi_scanbus(unsigned char astart, unsigned char aend) {
+static void sdi_scanbus(unsigned char astart, unsigned char aend) {
 	printf("\n--- Scan Start ---\n");
 	for (unsigned char ai = astart; ai <= aend; ai++) {
 		sprintf((char*) cmd_buf, "%cI!", ai);
@@ -172,32 +210,98 @@ void sdi_scanbus(unsigned char astart, unsigned char aend) {
 		cmd_idx = -1;
 	}
 	printf("\n");
+}
 
+#define MAXLOG 1000
+static 	char logline[MAXLOG+10];
+static void run_logger(int per) {
+	time_t t,t0= time(NULL)-(time_t) per;
+	int deltat;
+	int cnt = 0;
+	printf("\n--- Logger Running. Exit: <ESC> ---\n");
+	for (;;) {
+		t = time(NULL);
+		deltat = (int)(t - t0);
+		if (loc_kbhit()) {
+			if (loc_getch() == 27) {
+				break;
+			}
+			else {
+				printf("\n--- Logger Running. Exit: <ESC> ---\n");
+			}
+		}
+		if (deltat < per) {
+			printf("."); // Wait
+			Sleep(1000);
+			continue;
+		}
+		printf("Measure[%d]: ",cnt);
+		sprintf(logline, "%d",cnt);
+		char *pcs = lcmd;
+		for (;;) {
+			char *pcd = (char*)cmd_buf;
+			if (*pcs > ' ') {
+				while (*pcs > ' ') {
+					*pcd++ = *pcs++;
+				}
+				*pcd = 0;
+				if (cmd_buf) {
+					printf(" ");
+					if (cmd_buf[0] == '*' && cmd_buf[1] != 0) {
+						int wt = atoi(cmd_buf + 1);
+						if (wt > 60) {
+							printf("\n--- ERROR: Max. 60 sec ---\n");
+							break;
+						}
+						while (wt > 0) {
+							printf("*");
+							Sleep(1000);
+							wt -= 1;
+						}
+						continue;
+					}
+
+					strcat(logline, " ");
+					printf("Cmd:'%s'=>'", (char*)cmd_buf);
+					cmd_prompt_cnt = 0;
+					sdi_sendcmd(cmd_buf);
+					printf("%s'", reply_buf);
+
+					if (reply_cnt) strcat(logline, reply_buf);
+				}
+			}else if (*pcs == ' ') {
+				pcs++;
+			}else break;	// Cmd komplett
+		}
+		printf("\n   ===> Logline: '%s'\n", logline);
+		FILE *logfile = fopen(LOGFILENAME, "a");
+		if (!logfile) {
+			printf("ERROR: Open '%s'\n",LOGFILENAME);
+			break;
+		}
+		// Save line
+		fprintf(logfile, "%s\n", logline);
+		fclose(logfile);
+
+		t0 = t;
+		cnt++;
+	}
+	printf("<Exit>\n");
 }
-/* Console Wrapper EMBARCADERO / VS */
-int loc_kbhit(void){
-#ifdef __BORLANDC__
-	return kbhit();
-#else // VS
-	return _kbhit();
-#endif
-}
-int loc_getch(void){
-#ifdef __BORLANDC__
-	return getch();
-#else // VS
-	return _getch();
-#endif
-}
+
+
+
 
 /*--- sdi_term()) ------*/
-void sdi_term(void){
-	int c;
+static void sdi_term(void){
+	int c,cc;
+	int per;
 
 	printf("\n--- MENUE --\n");
 	printf("Enter SDI12 Commands, send it with '!' (leading <BREAK> added).\n");
 	printf("Non-SDI12 characters in Commands (<NL>,<CR>, ...) are ignored.\n");
-	printf("<TAB>: Scan SDI12 Bus (Addresses '0' to '9')\n");
+	printf("<TAB><s>: Scan SDI12 Bus (Addresses '0' to '9')\n");
+	printf("<TAB><l>: Start Logger\n");
 	printf("<ESC>: Exit\n\n");
 
 	printf("Ready...\n");
@@ -213,7 +317,57 @@ void sdi_term(void){
 					printf(" => <INPUT CANCELED>\a");	// Ignore this command
 					cmd_idx = -1;
 				}
-				sdi_scanbus('0', '9');
+				printf("\n--- <TAB>-Menue ---\n");
+				printf("<s>: Scan SDI12 Bus (Addresses '0' to '9')\n");
+				printf("<l>: Start Logger (File: 'log.dat')\n");
+				printf("Other: Exit\n\n");
+				for (;;) {
+					if (!loc_kbhit()) {
+						Sleep(LOOP_MS);
+						continue;
+					}
+					cc = loc_getch();
+					if (tolower(cc) == 's') {
+						sdi_scanbus('0', '9');
+						break;
+					}
+					if (tolower(cc) == 'l') {
+						printf("Logger:\n");
+						FILE* tf = fopen(LOGFILENAME, "r");
+						if(tf){
+							fclose(tf);
+							printf("Delete existing logfile '%s'? (y):", LOGFILENAME);
+							loc_gets(tmp);
+							if (tolower(tmp[0] == 'y')) {
+								remove(LOGFILENAME);
+							}
+						}
+						if (strlen(lcmd)) {
+							printf("Enter new Cmd? (Existing: '%s')? (y):", lcmd);
+							loc_gets(tmp);
+							if (tolower(tmp[0] == 'y')) {
+								*lcmd = 0;
+							}
+						}
+						if (!strlen(lcmd)) {
+							printf("Logger-Command (Default: '?M! *1 ?D0!', (SDI-Commands or '*N': Pause N seconds, seperated by ' ')): ");
+							loc_gets(lcmd);
+							if (strlen(lcmd) <= 0) strcpy(lcmd, "?M! *1 ?D0!");
+						}
+						printf("Period (in sec, >= 5): ");
+						loc_gets(tmp);
+						per = atoi(tmp);
+						if (per < 5) break;
+						x_verb = false;
+						run_logger(per);
+						x_verb = true;
+
+						break;
+					}
+					else break;
+				}
+				printf("Done, Ready...\n");
+
 			}else if (c == '\b') {	// Backspace
 				if (cmd_idx > 0) {
 					cmd_prompt_cnt = PROMPT_MS;
